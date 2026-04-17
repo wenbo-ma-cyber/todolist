@@ -1,5 +1,18 @@
+// Polyfill in case CDN is blocked (e.g., in China)
+if (typeof window.lucide === 'undefined') {
+    window.lucide = { createIcons: () => console.warn('Lucide icons failed to load') };
+}
+if (typeof window.Chart === 'undefined') {
+    window.Chart = class Chart {
+        constructor() { this.destroy = () => {}; }
+        static defaults = { font: {} };
+    };
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+        try { lucide.createIcons(); } catch(e) {}
+    }
     App.init();
 });
 
@@ -208,7 +221,7 @@ const App = {
         this.updateTopicTagUI();
         document.getElementById('checkinNotes').value = '';
         document.getElementById('checkinDuration').value = 2;
-        document.getElementById('durationDisplay').textContent = '2.0';
+        document.getElementById('durationInput').value = '2.0';
         
         // Date handling
         const dateInput = document.getElementById('checkinDate');
