@@ -65,6 +65,25 @@ const App = {
         // 打卡入口
         document.getElementById('fabCheckin').addEventListener('click', () => this.openModal());
         document.getElementById('openCheckinModalBtn').addEventListener('click', () => this.openModal());
+
+        // 进度表格搜索
+        const searchInput = document.getElementById('ptableSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const tbody = document.getElementById('ptableBody');
+                if (!tbody) return;
+                const rows = tbody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const topicName = row.querySelector('td').textContent.toLowerCase();
+                    if (topicName.includes(term)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
     },
 
     updateAllViews() {

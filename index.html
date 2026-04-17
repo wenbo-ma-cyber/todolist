@@ -205,9 +205,14 @@
                     <h2 class="text-2xl font-bold tracking-tight">模块进度矩阵</h2>
                     <p class="text-apple-textMuted text-sm mt-1">借鉴 Table Habit，直观掌控每个知识点的攻克进度。</p>
                 </div>
-                <div class="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl flex text-sm">
-                    <button class="px-4 py-1.5 rounded-lg bg-white dark:bg-gray-700 shadow-sm font-medium">最近30天</button>
-                    <button class="px-4 py-1.5 rounded-lg text-apple-textMuted hover:text-apple-textLight dark:hover:text-apple-textDark transition-colors">全部赛程</button>
+                <div class="flex flex-col sm:flex-row items-center gap-3">
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                        <input type="text" id="ptableSearch" placeholder="搜索模块..." class="pl-9 pr-4 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 border-transparent focus:bg-white focus:border-apple-blue dark:focus:bg-gray-900 rounded-xl outline-none transition-all w-full sm:w-48 shadow-sm">
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl flex text-sm shadow-sm">
+                        <button class="px-4 py-1.5 rounded-lg bg-white dark:bg-gray-700 shadow-sm font-medium">最近30天</button>
+                    </div>
                 </div>
             </div>
 
