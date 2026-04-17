@@ -676,44 +676,4 @@ const App = {
             }
         });
     }
-};               '#34C759', // Green
-                        '#FF3B30', // Red
-                        '#5AC8FA', // Light Blue
-                        '#FF2D55'  // Pink
-                    ],
-                    borderWidth: 2,
-                    borderColor: this.data.darkMode ? '#1C1C1E' : '#FFFFFF',
-                    hoverOffset: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { 
-                        position: 'right', 
-                        labels: { 
-                            color: textColor, 
-                            padding: 15, 
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: { size: 12 }
-                        } 
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return ` ${context.label}: ${context.raw} 小时`;
-                            }
-                        }
-                    }
-                },
-                cutout: '75%',
-                animation: {
-                    animateScale: true,
-                    animateRotate: true
-                }
-            }
-        });
-    }
 };
