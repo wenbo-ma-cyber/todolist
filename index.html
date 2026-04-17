@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 TI电赛备赛监督面板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        apple: {
+                            blue: '#007AFF',
+                            cyan: '#00C4B4',
+                            green: '#34C759',
+                            orange: '#FF9500',
+                            purple: '#8E7AFF',
+                            bgLight: '#F5F5F7',
+                            bgDark: '#000000',
+                            cardLight: '#FFFFFF',
+                            cardDark: '#1C1C1E',
+                            textLight: '#1D1D1F',
+                            textDark: '#F5F5F7',
+                            textMuted: '#86868B'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"PingFang SC"', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'apple': '0 8px 30px rgba(0, 0, 0, 0.04)',
+                        'apple-hover': '0 10px 40px rgba(0, 0, 0, 0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-apple-bgLight dark:bg-apple-bgDark text-apple-textLight dark:text-apple-textDark transition-colors duration-300 antialiased min-h-screen flex flex-col font-sans pt-20">
+
+    <!-- 顶部导航栏 (Glassmorphism) -->
+    <nav class="fixed top-0 w-full glass z-50 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="cpu" class="text-apple-blue"></i>
+                    <span class="font-semibold text-lg tracking-tight">TI-2026 控制先锋</span>
+                </div>
+                
+                <!-- 桌面端导航 -->
+                <div class="hidden md:flex space-x-1">
+                    <button class="nav-btn active" data-target="dashboard">首页总览</button>
+                    <button class="nav-btn" data-target="checkin">每日打卡</button>
+                    <button class="nav-btn" data-target="summary">学习总结</button>
+                    <button class="nav-btn" data-target="prep">备赛专区</button>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <select id="memberSelect" class="appearance-none bg-gray-100 dark:bg-gray-800 rounded-full py-1.5 pl-4 pr-8 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-apple-blue transition-shadow cursor-pointer">
+                            <!-- 动态加载成员 -->
+                        </select>
+                        <i data-lucide="chevron-down" class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-apple-textMuted pointer-events-none"></i>
+                    </div>
+                    <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-200">
+                        <i data-lucide="moon" id="darkIcon" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 移动端导航栏 -->
+        <div class="md:hidden flex overflow-x-auto px-4 pb-2 space-x-2 hide-scrollbar">
+            <button class="nav-btn text-sm px-3 py-1 active" data-target="dashboard">首页</button>
+            <button class="nav-btn text-sm px-3 py-1" data-target="checkin">打卡</button>
+            <button class="nav-btn text-sm px-3 py-1" data-target="summary">总结</button>
+            <button class="nav-btn text-sm px-3 py-1" data-target="prep">备赛</button>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Dashboard 视图 -->
+        <section id="dashboard" class="view-section active animate-fade-in">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold mb-2">欢迎回来，<span id="welcomeName" class="text-apple-blue"></span> 👋</h1>
+                <p class="text-apple-textMuted">今天也要为了2026年TI电赛省一/国一全力以赴！</p>
+            </div>
+
+            <!-- 概览卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="apple-card p-6 flex items-center space-x-4">
+                    <div class="p-3 bg-apple-blue/10 rounded-2xl text-apple-blue">
+                        <i data-lucide="calendar-check" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <p class="text-apple-textMuted text-sm font-medium">总打卡天数</p>
+                        <p class="text-3xl font-bold mt-1" id="statTotalDays">0</p>
+                    </div>
+                </div>
+                <div class="apple-card p-6 flex items-center space-x-4">
+                    <div class="p-3 bg-apple-orange/10 rounded-2xl text-apple-orange">
+                        <i data-lucide="flame" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <p class="text-apple-textMuted text-sm font-medium">当前连续打卡</p>
+                        <p class="text-3xl font-bold mt-1"><span id="statStreak">0</span> <span class="text-lg font-normal text-apple-textMuted">天</span></p>
+                    </div>
+                </div>
+                <div class="apple-card p-6 flex items-center space-x-4">
+                    <div class="p-3 bg-apple-cyan/10 rounded-2xl text-apple-cyan">
+                        <i data-lucide="clock" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <p class="text-apple-textMuted text-sm font-medium">总学习时长</p>
+                        <p class="text-3xl font-bold mt-1"><span id="statTotalHours">0</span> <span class="text-lg font-normal text-apple-textMuted">小时</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 热力图 -->
+            <div class="apple-card p-6 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold flex items-center gap-2">
+                        <i data-lucide="activity" class="w-5 h-5 text-apple-cyan"></i> 贡献热力图
+                    </h2>
+                    <span class="text-xs text-apple-textMuted">4月16日 - 7月15日</span>
+                </div>
+                <div id="heatmapContainer" class="w-full overflow-x-auto pb-4 hide-scrollbar">
+                    <!-- 热力图由JS渲染 -->
+                </div>
+                <div class="flex items-center justify-end space-x-2 mt-4 text-xs text-apple-textMuted">
+                    <span>少</span>
+                    <div class="w-3 h-3 rounded-sm bg-gray-100 dark:bg-gray-800"></div>
+                    <div class="w-3 h-3 rounded-sm bg-apple-cyan opacity-40"></div>
+                    <div class="w-3 h-3 rounded-sm bg-apple-cyan opacity-70"></div>
+                    <div class="w-3 h-3 rounded-sm bg-apple-cyan"></div>
+                    <span>多</span>
+                </div>
+            </div>
+            
+            <!-- 数据备份操作 -->
+            <div class="flex justify-end gap-4">
+                <button id="exportBtn" class="text-sm text-apple-textMuted hover:text-apple-blue transition-colors flex items-center gap-1"><i data-lucide="download" class="w-4 h-4"></i> 导出数据</button>
+                <button id="importBtn" class="text-sm text-apple-textMuted hover:text-apple-blue transition-colors flex items-center gap-1"><i data-lucide="upload" class="w-4 h-4"></i> 导入数据</button>
+                <input type="file" id="importInput" class="hidden" accept=".json">
+            </div>
+        </section>
+
+        <!-- 打卡视图 -->
+        <section id="checkin" class="view-section hidden animate-fade-in">
+            <div class="max-w-2xl mx-auto apple-card p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold mb-2">今日份努力</h2>
+                    <p class="text-apple-textMuted text-sm">点滴积累，铸就非凡。记录你今天的进步吧！</p>
+                </div>
+                
+                <form id="checkinForm" class="space-y-6">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">日期</label>
+                            <input type="date" id="checkinDate" class="apple-input w-full" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">学习时长 (小时)</label>
+                            <input type="number" id="checkinDuration" min="0.5" step="0.5" class="apple-input w-full" placeholder="例如: 2" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">学习主题 (可多选)</label>
+                        <div class="flex flex-wrap gap-2 mb-3" id="topicTags">
+                            <!-- 动态渲染标签 -->
+                        </div>
+                        <input type="text" id="checkinCustomTopic" class="apple-input w-full text-sm" placeholder="自定义主题 (回车添加)">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">详细笔记/进度</label>
+                        <textarea id="checkinNotes" rows="4" class="apple-input w-full resize-none" placeholder="今天搞懂了PID的速度环调参，波形完美！..."></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">自我评价</label>
+                        <div class="flex justify-between sm:justify-start sm:space-x-4" id="emojiSelector">
+                            <button type="button" class="emoji-btn text-2xl p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" data-emoji="🚀">🚀</button>
+                            <button type="button" class="emoji-btn text-2xl p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" data-emoji="💡">💡</button>
+                            <button type="button" class="emoji-btn text-2xl p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" data-emoji="🤔">🤔</button>
+                            <button type="button" class="emoji-btn text-2xl p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" data-emoji="😵‍💫">😵‍💫</button>
+                        </div>
+                        <input type="hidden" id="checkinEmoji" value="🚀">
+                    </div>
+
+                    <button type="submit" class="w-full bg-apple-blue hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98]">
+                        确认打卡
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 总结视图 -->
+        <section id="summary" class="view-section hidden animate-fade-in">
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- 左侧：图表统计 -->
+                <div class="w-full md:w-1/3 space-y-6">
+                    <div class="apple-card p-6">
+                        <h3 class="text-lg font-semibold mb-4">学习时长趋势</h3>
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                    <div class="apple-card p-6">
+                        <h3 class="text-lg font-semibold mb-4">技能分布</h3>
+                        <canvas id="topicChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 右侧：时间线与便签 -->
+                <div class="w-full md:w-2/3 apple-card p-6">
+                    <div class="flex border-b border-gray-200 dark:border-gray-800 mb-6">
+                        <button class="px-4 py-2 font-medium text-apple-blue border-b-2 border-apple-blue">打卡时间线</button>
+                    </div>
+                    
+                    <div id="timelineContainer" class="space-y-6 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- JS 渲染历史打卡 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 备赛专区视图 -->
+        <section id="prep" class="view-section hidden animate-fade-in">
+            <div class="apple-card p-8 max-w-4xl mx-auto">
+                <div class="text-center mb-10">
+                    <h1 class="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-apple-blue to-apple-cyan">TI电赛控制题备赛专区</h1>
+                    <p class="text-apple-textMuted">从小白到省赛/国赛的进阶指南</p>
+                </div>
+
+                <div class="space-y-12 prose dark:prose-invert max-w-none">
+                    
+                    <!-- 硬件模块 -->
+                    <div>
+                        <h3 class="flex items-center gap-2 text-xl font-bold border-b border-gray-100 dark:border-gray-800 pb-2"><i data-lucide="cpu" class="text-apple-orange"></i> 硬件模块必备</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+                                <span class="font-semibold text-apple-blue">电源模块</span>
+                                <p class="text-sm mt-1 text-apple-textMuted">12V/9V/5V/3.3V稳压 + 可调升压</p>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+                                <span class="font-semibold text-apple-blue">MCU最小系统</span>
+                                <p class="text-sm mt-1 text-apple-textMuted">强烈推荐STM32，也要了解TI MSP432、C2000、MSP430</p>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+                                <span class="font-semibold text-apple-blue">驱动模块</span>
+                                <p class="text-sm mt-1 text-apple-textMuted">L298N、ULN2003/ULN2803等</p>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+                                <span class="font-semibold text-apple-blue">传感器模块</span>
+                                <p class="text-sm mt-1 text-apple-textMuted">超声波、红外、霍尔、循迹、编码器、陀螺仪等</p>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl md:col-span-2">
+                                <span class="font-semibold text-apple-blue">人机交互</span>
+                                <p class="text-sm mt-1 text-apple-textMuted">数码管、OLED、按键、蜂鸣器</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 软件与控制 -->
+                    <div>
+                        <h3 class="flex items-center gap-2 text-xl font-bold border-b border-gray-100 dark:border-gray-800 pb-2"><i data-lucide="code" class="text-apple-purple"></i> 软件与控制核心</h3>
+                        <ul class="list-disc list-inside space-y-2 mt-4 text-apple-textMuted">
+                            <li><strong class="text-apple-textLight dark:text-apple-textDark">单片机外设熟练掌握：</strong> PWM、ADC、定时器、串口、I2C</li>
+                            <li><strong class="text-apple-textLight dark:text-apple-textDark">PID控制算法：</strong> 位置环、速度环、调参实战</li>
+                            <li><strong class="text-apple-textLight dark:text-apple-textDark">常见控制对象：</strong> 直流/步进/舵机调速、平衡小车、智能车、无人机控制</li>
+                        </ul>
+                    </div>
+
+                    <!-- 实战建议 -->
+                    <div class="bg-apple-blue/5 dark:bg-apple-blue/10 p-6 rounded-3xl">
+                        <h3 class="flex items-center gap-2 text-xl font-bold text-apple-blue mb-4"><i data-lucide="target"></i> 备赛实战建议</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-5 h-5 text-apple-green flex-shrink-0"></i> <span><strong>先做“重用电路模块”：</strong> 常用电源、驱动、传感器提前焊好调试好。</span></li>
+                            <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-5 h-5 text-apple-green flex-shrink-0"></i> <span><strong>多刷往届控制题：</strong> 智能车、灭火机器人、无人机、自动瞄准等。</span></li>
+                            <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-5 h-5 text-apple-green flex-shrink-0"></i> <span><strong>每天练习：</strong> 示波器看波形、编码器信号处理。</span></li>
+                            <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-5 h-5 text-apple-green flex-shrink-0"></i> <span><strong>团队分工：</strong> 硬件 / 算法 / 调试+报告。</span></li>
+                            <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-5 h-5 text-apple-green flex-shrink-0"></i> <span><strong>得分关键：</strong> 系统控制方案和算法设计的完整性与稳定性。</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- 学习路线 -->
+                    <div>
+                        <h3 class="flex items-center gap-2 text-xl font-bold border-b border-gray-100 dark:border-gray-800 pb-2"><i data-lucide="map" class="text-apple-cyan"></i> 学习路线推荐 (4个月计划)</h3>
+                        <div class="relative border-l-2 border-apple-cyan/30 ml-3 mt-6 space-y-6">
+                            <div class="relative pl-6">
+                                <div class="absolute w-3 h-3 bg-apple-cyan rounded-full -left-[7px] top-1.5 shadow-[0_0_0_4px_rgba(0,196,180,0.2)]"></div>
+                                <h4 class="font-bold">阶段一 (1-2周)：基础筑基</h4>
+                                <p class="text-sm text-apple-textMuted mt-1">STM32基础 + 外设熟练运用</p>
+                            </div>
+                            <div class="relative pl-6">
+                                <div class="absolute w-3 h-3 bg-apple-cyan rounded-full -left-[7px] top-1.5"></div>
+                                <h4 class="font-bold">阶段二 (2周)：算法核心</h4>
+                                <p class="text-sm text-apple-textMuted mt-1">PID原理透彻理解 + 电机闭环控制实战</p>
+                            </div>
+                            <div class="relative pl-6">
+                                <div class="absolute w-3 h-3 bg-apple-cyan rounded-full -left-[7px] top-1.5"></div>
+                                <h4 class="font-bold">阶段三 (3-4周)：系统融合</h4>
+                                <p class="text-sm text-apple-textMuted mt-1">传感器融合 + 小车/平衡系统完整搭建实战</p>
+                            </div>
+                            <div class="relative pl-6">
+                                <div class="absolute w-3 h-3 bg-apple-orange rounded-full -left-[7px] top-1.5 animate-pulse"></div>
+                                <h4 class="font-bold">冲刺阶段 (剩余时间)：全真模拟</h4>
+                                <p class="text-sm text-apple-textMuted mt-1">刷历年控制题 + 限制时间全流程模拟</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 资源 -->
+                    <div class="bg-gray-50 dark:bg-gray-800/50 p-5 rounded-2xl text-sm">
+                        <p><strong>📚 推荐资源：</strong>黄智伟《全国大学生电子设计竞赛重用电路模块》、B站电赛控制类优秀UP主视频、TI官方应用例程库。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-6 text-center text-sm text-apple-textMuted border-t border-gray-200 dark:border-gray-800 glass">
+        <p>为 2026 TI电赛控制题加油！🚀 截止7月15日</p>
+        <p class="mt-1 text-xs opacity-60">Made with ❤️ | Design inspired by Apple</p>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/heatmap.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

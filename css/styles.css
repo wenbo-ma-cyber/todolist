@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 dark:bg-[#1C1C1E]/70 backdrop-blur-xl;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Apple 风格卡片 */
+.apple-card {
+  @apply bg-apple-cardLight dark:bg-apple-cardDark rounded-3xl shadow-apple hover:shadow-apple-hover transition-shadow duration-300 border border-gray-100 dark:border-gray-800/50;
+}
+
+/* Apple 风格输入框 */
+.apple-input {
+  @apply bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-apple-blue/50 focus:border-apple-blue transition-all duration-200;
+}
+
+/* 导航按钮特效 */
+.nav-btn {
+  @apply px-4 py-2 rounded-full text-sm font-medium text-apple-textMuted transition-all duration-200 hover:text-apple-textLight dark:hover:text-apple-textDark hover:bg-gray-100 dark:hover:bg-gray-800;
+}
+.nav-btn.active {
+  @apply bg-apple-textLight text-white dark:bg-apple-textDark dark:text-black hover:bg-black dark:hover:bg-white;
+}
+
+/* 自定义优雅滚动条 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-600;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Emoji 选中状态 */
+.emoji-btn.ring-2 {
+  @apply bg-apple-blue/10 scale-110;
+}
