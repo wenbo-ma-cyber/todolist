@@ -54,6 +54,12 @@ class DataStore {
         }
     }
 
+    static deleteCustomTopic(topic) {
+        const data = this.load();
+        data.customTopics = data.customTopics.filter(t => t !== topic);
+        this.save(data);
+    }
+
     static addRecord(record) {
         const data = this.load();
         record.id = Date.now().toString();
